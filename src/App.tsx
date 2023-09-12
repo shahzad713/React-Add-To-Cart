@@ -1,25 +1,58 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { useState } from "react";
+import { useQuery } from "react-query";
+import { Drawer } from "@material-ui/core";
+import { LinearProgress } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
+import { AddShoppingCart } from "@material-ui/icons";
+import Badge from "@material-ui/core/Badge"; // Corrected import
+
+// styleComponents
+import { Wrapper, StyledButton } from './App.style';
+import Item from "./Item/Item";
+
+// types
+export type cardItemType = {
+  id: number;
+  category: string;
+  description: string;
+  image: string;
+  price: number;
+  title: string;
+  amount: number;
+};
+
+const getProduct = async (): Promise<cardItemType[]> => {
+  const response = await fetch("https://fakestoreapi.com/products");
+  const data = await response.json();
+  return data as cardItemType[];
+};
 
 function App() {
+  const { data, error, isError, isLoading } = useQuery<cardItemType[]>(
+    "products",
+    getProduct
+  );
+
+  console.log(data, "data");
+  if (isLoading) {
+    return <LinearProgress />;
+  }
+
+  const getTotalItems = () => null;
+  const handleAddToCart = (clickItem: cardItemType) => null;
+  const handleRemoveFromCart = () => null;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Wrapper>
+      <Grid container spacing={3}>
+        {data?.map((item) => (
+          <Grid item key={item.id} xs={12} sm={4}>
+            <Item item={item} handleAddToCart={handleAddToCart} />
+          </Grid>
+        ))}
+      </Grid>
+    </Wrapper>
   );
 }
 
